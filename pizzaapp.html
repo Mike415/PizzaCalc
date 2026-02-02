@@ -1,0 +1,1121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pizza & Bagel Dough Calculator</title>
+  <style>
+    /* CSS Variables */
+    :root {
+      --primary-color: #d63031;
+      --primary-dark: #b71c1c;
+      --secondary-color: #fdcb6e;
+      --background: #f5f6fa;
+      --card-bg: #ffffff;
+      --text-primary: #2d3436;
+      --text-secondary: #636e72;
+      --border-color: #dfe6e9;
+      --input-bg: #fff;
+      --output-bg: #f8f9fa;
+      --success-color: #00b894;
+      --shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      --radius: 12px;
+    }
+
+    /* Reset & Base */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+      background: var(--background);
+      color: var(--text-primary);
+      line-height: 1.6;
+      padding: 20px;
+    }
+
+    /* Container */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    /* Header */
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .header h1 {
+      font-size: 2rem;
+      color: var(--primary-color);
+      margin-bottom: 10px;
+    }
+
+    .header p {
+      color: var(--text-secondary);
+    }
+
+    /* Recipe Selector */
+    .recipe-selector {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 30px;
+      flex-wrap: wrap;
+    }
+
+    .recipe-btn {
+      padding: 12px 24px;
+      border: 2px solid var(--border-color);
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: 600;
+      transition: all 0.2s ease;
+    }
+
+    .recipe-btn:hover {
+      border-color: var(--primary-color);
+      color: var(--primary-color);
+    }
+
+    .recipe-btn.active {
+      background: var(--primary-color);
+      color: white;
+      border-color: var(--primary-color);
+    }
+
+    /* Cards */
+    .card {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+
+    .card h2 {
+      font-size: 1.25rem;
+      margin-bottom: 20px;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .card h2 .icon {
+      font-size: 1.5rem;
+    }
+
+    /* Grid Layout */
+    .input-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+    }
+
+    .input-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .input-group label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin-bottom: 6px;
+    }
+
+    .input-group input,
+    .input-group select {
+      padding: 10px 12px;
+      border: 2px solid var(--border-color);
+      border-radius: 8px;
+      font-size: 1rem;
+      background: var(--input-bg);
+      transition: border-color 0.2s;
+    }
+
+    .input-group input:focus,
+    .input-group select:focus {
+      outline: none;
+      border-color: var(--primary-color);
+    }
+
+    .input-group input:disabled {
+      background: var(--output-bg);
+      color: var(--text-secondary);
+    }
+
+    /* Percentage inputs */
+    .percentage-input {
+      position: relative;
+    }
+
+    .percentage-input::after {
+      content: '%';
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+    }
+
+    .percentage-input input {
+      padding-right: 30px;
+    }
+
+    /* Sliders */
+    .slider-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .slider-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .slider-header label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+    }
+
+    .slider-value {
+      font-weight: 700;
+      color: var(--primary-color);
+    }
+
+    input[type="range"] {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 8px;
+      border-radius: 4px;
+      background: var(--border-color);
+      outline: none;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--primary-color);
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+
+    input[type="range"]::-webkit-slider-thumb:hover {
+      transform: scale(1.1);
+    }
+
+    /* Collapsible Section */
+    .collapsible-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      padding: 12px 0;
+      border-top: 1px solid var(--border-color);
+      margin-top: 16px;
+    }
+
+    .collapsible-header h3 {
+      font-size: 0.95rem;
+      color: var(--text-secondary);
+    }
+
+    .collapsible-toggle {
+      font-size: 1.2rem;
+      color: var(--text-secondary);
+      transition: transform 0.3s;
+    }
+
+    .collapsible-content {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+    }
+
+    .collapsible-content.open {
+      max-height: 500px;
+    }
+
+    .collapsible-toggle.open {
+      transform: rotate(180deg);
+    }
+
+    /* Output Table */
+    .output-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 16px;
+    }
+
+    .output-table th,
+    .output-table td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .output-table th {
+      font-weight: 600;
+      color: var(--text-secondary);
+      font-size: 0.85rem;
+      text-transform: uppercase;
+    }
+
+    .output-table td {
+      font-size: 1rem;
+    }
+
+    .output-table td:not(:first-child) {
+      text-align: right;
+      font-weight: 600;
+    }
+
+    .output-table tr.highlight {
+      background: linear-gradient(90deg, rgba(214, 48, 49, 0.1), rgba(214, 48, 49, 0.05));
+    }
+
+    .output-table tr.highlight td {
+      color: var(--primary-color);
+      font-weight: 700;
+    }
+
+    /* Sauce Section */
+    .sauce-input-row {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .sauce-input-row .input-group {
+      flex: 1;
+      min-width: 200px;
+    }
+
+    .sync-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.75rem;
+      color: var(--success-color);
+      background: rgba(0, 184, 148, 0.1);
+      padding: 4px 8px;
+      border-radius: 4px;
+    }
+
+    /* Hidden elements */
+    .hidden {
+      display: none !important;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .header h1 {
+        font-size: 1.5rem;
+      }
+
+      .card {
+        padding: 16px;
+      }
+
+      .input-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .output-table th,
+      .output-table td {
+        padding: 8px;
+        font-size: 0.9rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .input-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .recipe-btn {
+        flex: 1;
+        text-align: center;
+      }
+    }
+
+    /* Tooltip */
+    .tooltip {
+      position: relative;
+      display: inline-block;
+      margin-left: 4px;
+      cursor: help;
+    }
+
+    .tooltip::before {
+      content: '?';
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 16px;
+      height: 16px;
+      background: var(--border-color);
+      border-radius: 50%;
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--text-secondary);
+    }
+
+    .tooltip::after {
+      content: attr(data-tip);
+      position: absolute;
+      bottom: 125%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--text-primary);
+      color: white;
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      white-space: nowrap;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.2s;
+      z-index: 100;
+    }
+
+    .tooltip:hover::after {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    /* Section divider */
+    .section-divider {
+      height: 1px;
+      background: var(--border-color);
+      margin: 20px 0;
+    }
+
+    /* Info display */
+    .info-row {
+      display: flex;
+      gap: 24px;
+      flex-wrap: wrap;
+      margin-top: 16px;
+      padding: 12px;
+      background: var(--output-bg);
+      border-radius: 8px;
+    }
+
+    .info-item {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .info-item label {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+    }
+
+    .info-item span {
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <header class="header">
+      <h1>🍕 Pizza & Bagel Dough Calculator</h1>
+      <p>Calculate perfect dough recipes with baker's percentages</p>
+    </header>
+
+    <!-- Recipe Selector -->
+    <div class="recipe-selector">
+      <button class="recipe-btn active" data-recipe="newYork">New York</button>
+      <button class="recipe-btn" data-recipe="ceresNY">Ceres NY</button>
+      <button class="recipe-btn" data-recipe="bagels">Bagels</button>
+    </div>
+
+    <!-- Dough Calculator -->
+    <div class="card">
+      <h2><span class="icon">🧮</span> Dough Calculator</h2>
+      
+      <!-- Common Inputs -->
+      <div class="input-grid">
+        <div class="input-group">
+          <label id="countLabel">Number of Pizzas</label>
+          <input type="number" id="count" value="4" min="1" max="100">
+        </div>
+        <div class="input-group" id="sizeGroup">
+          <label id="sizeLabel">Pizza Size (inches)</label>
+          <input type="number" id="size" value="14" min="6" max="24" step="0.5">
+        </div>
+        <div class="input-group hidden" id="weightGroup">
+          <label>Bagel Weight (g)</label>
+          <input type="number" id="bagelWeight" value="150" min="50" max="300">
+        </div>
+      </div>
+
+      <div class="section-divider"></div>
+
+      <!-- Baker's Percentages -->
+      <h3 style="font-size: 0.95rem; color: var(--text-secondary); margin-bottom: 12px;">
+        Baker's Percentages <span class="tooltip" data-tip="All percentages relative to flour (100%)"></span>
+      </h3>
+      <div class="input-grid">
+        <div class="input-group">
+          <label>Flour</label>
+          <input type="text" value="100%" disabled>
+        </div>
+        <div class="input-group percentage-input">
+          <label>Hydration <span class="tooltip" data-tip="Water as % of flour"></span></label>
+          <input type="number" id="hydration" value="62" min="40" max="90" step="0.5">
+        </div>
+        <div class="input-group percentage-input">
+          <label>Yeast <span class="tooltip" data-tip="Instant dry yeast"></span></label>
+          <input type="number" id="yeast" value="0.75" min="0" max="5" step="0.05">
+        </div>
+        <div class="input-group percentage-input">
+          <label>Salt</label>
+          <input type="number" id="salt" value="3.75" min="0" max="10" step="0.05">
+        </div>
+        <div class="input-group percentage-input">
+          <label id="fatLabel">EVOO</label>
+          <input type="number" id="fat" value="1" min="0" max="20" step="0.25">
+        </div>
+        <div class="input-group percentage-input" id="sugarGroup">
+          <label id="sugarLabel">Sugar/Malt</label>
+          <input type="number" id="sugar" value="3" min="0" max="15" step="0.25">
+        </div>
+      </div>
+
+      <!-- Sliders -->
+      <div class="section-divider"></div>
+      <div class="input-grid" id="sliderSection">
+        <div class="slider-group">
+          <div class="slider-header">
+            <label>Flour Density Adjustment</label>
+            <span class="slider-value" id="flourSliderValue">100%</span>
+          </div>
+          <input type="range" id="flourSlider" min="50" max="150" value="100">
+        </div>
+        <div class="slider-group">
+          <div class="slider-header">
+            <label>Sauce Amount</label>
+            <span class="slider-value" id="sauceSliderValue">100%</span>
+          </div>
+          <input type="range" id="sauceSlider" min="0" max="150" value="100">
+        </div>
+        <div class="slider-group">
+          <div class="slider-header">
+            <label>Cheese Amount</label>
+            <span class="slider-value" id="cheeseSliderValue">100%</span>
+          </div>
+          <input type="range" id="cheeseSlider" min="0" max="150" value="100">
+        </div>
+      </div>
+
+      <!-- Flour Blend Section (NY & Bagels) -->
+      <div class="section-divider" id="flourBlendDivider"></div>
+      <h3 style="font-size: 0.95rem; color: var(--text-secondary); margin-bottom: 12px;" id="flourBlendTitle">
+        Flour Blend <span class="tooltip" data-tip="Mix flours to achieve target protein"></span>
+      </h3>
+      <div class="input-grid" id="flourBlendNY">
+        <div class="input-group percentage-input">
+          <label>Flour 1 Protein</label>
+          <input type="number" id="flour1Protein" value="13.5" min="8" max="18" step="0.1">
+        </div>
+        <div class="input-group percentage-input">
+          <label>Flour 2 Protein</label>
+          <input type="number" id="flour2Protein" value="75" min="8" max="80" step="0.1">
+        </div>
+        <div class="input-group percentage-input">
+          <label>Target Protein</label>
+          <input type="number" id="targetProtein" value="14.25" min="10" max="18" step="0.25">
+        </div>
+      </div>
+
+      <!-- Flour Blend Section (Ceres NY) -->
+      <div class="input-grid hidden" id="flourBlendCeres">
+        <div class="input-group percentage-input">
+          <label>00 Flour</label>
+          <input type="number" id="flour1Pct" value="82.5" min="0" max="100" step="0.5">
+        </div>
+        <div class="input-group percentage-input">
+          <label>Whole Wheat (auto)</label>
+          <input type="number" id="flour2Pct" value="12.5" disabled>
+        </div>
+        <div class="input-group percentage-input">
+          <label>Bolted (auto)</label>
+          <input type="number" id="flour3Pct" value="5" disabled>
+        </div>
+      </div>
+
+      <!-- Advanced Reference Values (Collapsible) -->
+      <div class="collapsible-header" onclick="toggleCollapsible('refValues')">
+        <h3>⚙️ Reference Values</h3>
+        <span class="collapsible-toggle" id="refValuesToggle">▼</span>
+      </div>
+      <div class="collapsible-content" id="refValuesContent">
+        <div class="input-grid" style="padding-top: 16px;">
+          <div class="input-group">
+            <label>Sauce Level (g/sq in)</label>
+            <input type="number" id="sauceLevel" value="1" min="0" max="3" step="0.1">
+          </div>
+          <div class="input-group">
+            <label>Cheese Level (g/sq in)</label>
+            <input type="number" id="cheeseLevel" value="1.1" min="0" max="3" step="0.1">
+          </div>
+          <div class="input-group">
+            <label>Crust Size (inches)</label>
+            <input type="number" id="crustSize" value="0.8" min="0" max="3" step="0.1">
+          </div>
+          <div class="input-group">
+            <label>Flour Density (g/sq in)</label>
+            <input type="number" id="flourDensity" value="1.45" min="0.5" max="3" step="0.05">
+          </div>
+        </div>
+      </div>
+
+      <!-- Area Info -->
+      <div class="info-row" id="areaInfo">
+        <div class="info-item">
+          <label>Total Dough Area</label>
+          <span id="totalArea">615.75 sq in</span>
+        </div>
+        <div class="info-item">
+          <label>Covered Area (w/o crust)</label>
+          <span id="coveredArea">482.52 sq in</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dough Output -->
+    <div class="card">
+      <h2><span class="icon">📊</span> Dough Recipe</h2>
+      <table class="output-table">
+        <thead>
+          <tr>
+            <th>Ingredient</th>
+            <th>Per Unit</th>
+            <th>Total</th>
+          </tr>
+        </thead>
+        <tbody id="doughOutput">
+          <!-- Populated by JS -->
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Sauce Recipe -->
+    <div class="card" id="sauceSection">
+      <h2><span class="icon">🍅</span> Sauce Recipe</h2>
+      <div class="sauce-input-row">
+        <div class="input-group">
+          <label>Sauce Amount (g) <span class="sync-badge" id="syncBadge">🔗 Synced</span></label>
+          <input type="number" id="sauceAmount" value="483" min="0" step="1">
+        </div>
+      </div>
+      <table class="output-table">
+        <thead>
+          <tr>
+            <th>Ingredient</th>
+            <th>Amount</th>
+          </tr>
+        </thead>
+        <tbody id="sauceOutput">
+          <!-- Populated by JS -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    // ==================== RECIPE DATA ====================
+    const recipes = {
+      newYork: {
+        name: "New York",
+        usePizzaSize: true,
+        defaults: {
+          count: 4,
+          size: 14,
+          hydration: 62,
+          yeast: 0.75,
+          salt: 3.75,
+          fat: 1,
+          flour1Protein: 13.5,
+          flour2Protein: 75,
+          targetProtein: 14.25
+        },
+        hasSugar: false,
+        flourTypes: 2,
+        fatLabel: "EVOO"
+      },
+      ceresNY: {
+        name: "Ceres NY",
+        usePizzaSize: true,
+        defaults: {
+          count: 4,
+          size: 14,
+          hydration: 70,
+          yeast: 0.75,
+          salt: 2.25,
+          fat: 2.25,
+          sugar: 3,
+          flour1Pct: 82.5
+        },
+        hasSugar: true,
+        sugarLabel: "Sugar",
+        flourTypes: 3,
+        fatLabel: "EVOO"
+      },
+      bagels: {
+        name: "Bagels",
+        usePizzaSize: false,
+        defaults: {
+          count: 10,
+          weight: 150,
+          hydration: 58,
+          yeast: 0.75,
+          salt: 3.5,
+          fat: 0,
+          sugar: 5,
+          flour1Protein: 12.7,
+          flour2Protein: 75,
+          targetProtein: 14.25
+        },
+        hasSugar: true,
+        sugarLabel: "Malt",
+        flourTypes: 2,
+        fatLabel: "Fat"
+      }
+    };
+
+    const referenceDefaults = {
+      sauceLevel: 1,
+      cheeseLevel: 1.1,
+      crustSize: 0.8,
+      flourDensity: 1.45
+    };
+
+    const sauceRatios = {
+      crushedTomatoes: 0.714,
+      tomatoPaste: 0.265,
+      evoo: 0.0204,
+      oregano: 0.00275,
+      seaSalt: 0.0018
+    };
+
+    // ==================== STATE ====================
+    let currentRecipe = 'newYork';
+    let sauceSynced = true;
+
+    // ==================== DOM ELEMENTS ====================
+    const elements = {
+      count: document.getElementById('count'),
+      size: document.getElementById('size'),
+      bagelWeight: document.getElementById('bagelWeight'),
+      hydration: document.getElementById('hydration'),
+      yeast: document.getElementById('yeast'),
+      salt: document.getElementById('salt'),
+      fat: document.getElementById('fat'),
+      sugar: document.getElementById('sugar'),
+      flour1Protein: document.getElementById('flour1Protein'),
+      flour2Protein: document.getElementById('flour2Protein'),
+      targetProtein: document.getElementById('targetProtein'),
+      flour1Pct: document.getElementById('flour1Pct'),
+      flour2Pct: document.getElementById('flour2Pct'),
+      flour3Pct: document.getElementById('flour3Pct'),
+      sauceLevel: document.getElementById('sauceLevel'),
+      cheeseLevel: document.getElementById('cheeseLevel'),
+      crustSize: document.getElementById('crustSize'),
+      flourDensity: document.getElementById('flourDensity'),
+      flourSlider: document.getElementById('flourSlider'),
+      sauceSlider: document.getElementById('sauceSlider'),
+      cheeseSlider: document.getElementById('cheeseSlider'),
+      sauceAmount: document.getElementById('sauceAmount')
+    };
+
+    // ==================== CALCULATION FUNCTIONS ====================
+    function calculateDoughArea(diameter) {
+      return Math.PI * Math.pow(diameter / 2, 2);
+    }
+
+    function calculateCoveredArea(diameter, crustSize) {
+      const innerDiameter = diameter - (2 * crustSize);
+      return Math.PI * Math.pow(innerDiameter / 2, 2);
+    }
+
+    function calculateFlourFromArea(area, density, sliderPct) {
+      return area * density * (sliderPct / 100);
+    }
+
+    function calculateFlourFromWeight(targetWeight, percentages) {
+      // Total dough weight = flour * (1 + hydration + yeast + salt + fat + sugar)
+      const totalPct = 1 + percentages.hydration + percentages.yeast + 
+                       percentages.salt + percentages.fat + (percentages.sugar || 0);
+      return targetWeight / totalPct;
+    }
+
+    function calculateIngredients(flour, percentages) {
+      return {
+        water: flour * percentages.hydration,
+        yeast: flour * percentages.yeast,
+        salt: flour * percentages.salt,
+        fat: flour * percentages.fat,
+        sugar: flour * (percentages.sugar || 0)
+      };
+    }
+
+    function calculateFlourBlendByProtein(totalFlour, flour1Protein, flour2Protein, targetProtein) {
+      // Linear interpolation: target = flour1% * prot1 + flour2% * prot2
+      // flour1% + flour2% = 1
+      // flour1% = (target - prot2) / (prot1 - prot2)
+      const flour1Pct = (targetProtein - flour2Protein) / (flour1Protein - flour2Protein);
+      const flour2Pct = 1 - flour1Pct;
+      return {
+        flour1: totalFlour * Math.max(0, Math.min(1, flour1Pct)),
+        flour2: totalFlour * Math.max(0, Math.min(1, flour2Pct))
+      };
+    }
+
+    function calculateFlourBlendCeres(totalFlour, flour1Pct) {
+      // Ceres: 00 flour % is set, WW and Bolted split the remainder
+      // WW gets 71.4% of remainder, Bolted gets 28.6%
+      const remainder = 100 - flour1Pct;
+      const flour2Pct = remainder / 2;
+      const flour3Pct = remainder / 2;
+      return {
+        flour1: totalFlour * (flour1Pct / 100),
+        flour2: totalFlour * (flour2Pct / 100),
+        flour3: totalFlour * (flour3Pct / 100),
+        flour2Pct: flour2Pct,
+        flour3Pct: flour3Pct
+      };
+    }
+
+    function calculateSauce(amount) {
+      return {
+        crushedTomatoes: amount * sauceRatios.crushedTomatoes,
+        tomatoPaste: amount * sauceRatios.tomatoPaste,
+        evoo: amount * sauceRatios.evoo,
+        oregano: amount * sauceRatios.oregano,
+        seaSalt: amount * sauceRatios.seaSalt
+      };
+    }
+
+    // ==================== UI UPDATE FUNCTIONS ====================
+    function updateUI() {
+      const recipe = recipes[currentRecipe];
+      const count = parseInt(elements.count.value) || 1;
+      
+      // Get percentages (convert from display % to decimal)
+      const percentages = {
+        hydration: parseFloat(elements.hydration.value) / 100,
+        yeast: parseFloat(elements.yeast.value) / 100,
+        salt: parseFloat(elements.salt.value) / 100,
+        fat: parseFloat(elements.fat.value) / 100,
+        sugar: recipe.hasSugar ? parseFloat(elements.sugar.value) / 100 : 0
+      };
+
+      // Get reference values
+      const sauceLevel = parseFloat(elements.sauceLevel.value);
+      const cheeseLevel = parseFloat(elements.cheeseLevel.value);
+      const crustSize = parseFloat(elements.crustSize.value);
+      const flourDensity = parseFloat(elements.flourDensity.value);
+      
+      // Get slider values
+      const flourSliderPct = parseInt(elements.flourSlider.value);
+      const sauceSliderPct = parseInt(elements.sauceSlider.value);
+      const cheeseSliderPct = parseInt(elements.cheeseSlider.value);
+
+      // Update slider displays
+      document.getElementById('flourSliderValue').textContent = flourSliderPct + '%';
+      document.getElementById('sauceSliderValue').textContent = sauceSliderPct + '%';
+      document.getElementById('cheeseSliderValue').textContent = cheeseSliderPct + '%';
+
+      let totalFlour, doughArea, coveredArea;
+      let perUnitFlour;
+
+      if (recipe.usePizzaSize) {
+        // Pizza calculation based on area
+        const size = parseFloat(elements.size.value);
+        doughArea = calculateDoughArea(size);
+        coveredArea = calculateCoveredArea(size, crustSize);
+        perUnitFlour = calculateFlourFromArea(doughArea, flourDensity, flourSliderPct);
+        totalFlour = perUnitFlour * count;
+
+        // Update area display
+        document.getElementById('totalArea').textContent = (doughArea * count).toFixed(2) + ' sq in';
+        document.getElementById('coveredArea').textContent = (coveredArea * count).toFixed(2) + ' sq in';
+        document.getElementById('areaInfo').classList.remove('hidden');
+      } else {
+        // Bagel calculation based on weight
+        const targetWeight = parseFloat(elements.bagelWeight.value);
+        perUnitFlour = calculateFlourFromWeight(targetWeight, percentages);
+        totalFlour = perUnitFlour * count;
+        
+        // For bagels, set dummy area for sauce/cheese calculation
+        doughArea = 0;
+        coveredArea = 0;
+        document.getElementById('areaInfo').classList.add('hidden');
+      }
+
+      // Calculate ingredients
+      const totalIngredients = calculateIngredients(totalFlour, percentages);
+      const perUnitIngredients = calculateIngredients(perUnitFlour, percentages);
+
+      // Calculate ball weight
+      const perUnitBallWeight = perUnitFlour + perUnitIngredients.water + perUnitIngredients.yeast + 
+                                perUnitIngredients.salt + perUnitIngredients.fat + perUnitIngredients.sugar;
+      const totalBallWeight = perUnitBallWeight * count;
+
+      // Calculate flour blend
+      let flourBlend;
+      if (currentRecipe === 'ceresNY') {
+        const flour1Pct = parseFloat(elements.flour1Pct.value);
+        flourBlend = calculateFlourBlendCeres(totalFlour, flour1Pct);
+        elements.flour2Pct.value = flourBlend.flour2Pct.toFixed(1);
+        elements.flour3Pct.value = flourBlend.flour3Pct.toFixed(1);
+      } else {
+        const flour1Protein = parseFloat(elements.flour1Protein.value);
+        const flour2Protein = parseFloat(elements.flour2Protein.value);
+        const targetProtein = parseFloat(elements.targetProtein.value);
+        flourBlend = calculateFlourBlendByProtein(totalFlour, flour1Protein, flour2Protein, targetProtein);
+      }
+
+      // Calculate sauce and cheese (for pizzas)
+      let totalSauce = 0, totalCheese = 0;
+      if (recipe.usePizzaSize) {
+        totalSauce = coveredArea * count * sauceLevel * (sauceSliderPct / 100);
+        totalCheese = coveredArea * count * cheeseLevel * (cheeseSliderPct / 100);
+      }
+
+      // Update dough output table
+      updateDoughTable(count, {
+        flour: { perUnit: perUnitFlour, total: totalFlour },
+        flour1: { perUnit: flourBlend.flour1 / count, total: flourBlend.flour1 },
+        flour2: { perUnit: flourBlend.flour2 / count, total: flourBlend.flour2 },
+        flour3: currentRecipe === 'ceresNY' ? { perUnit: flourBlend.flour3 / count, total: flourBlend.flour3 } : null,
+        water: { perUnit: perUnitIngredients.water, total: totalIngredients.water },
+        yeast: { perUnit: perUnitIngredients.yeast, total: totalIngredients.yeast },
+        salt: { perUnit: perUnitIngredients.salt, total: totalIngredients.salt },
+        fat: { perUnit: perUnitIngredients.fat, total: totalIngredients.fat },
+        sugar: recipe.hasSugar ? { perUnit: perUnitIngredients.sugar, total: totalIngredients.sugar } : null,
+        ballWeight: { perUnit: perUnitBallWeight, total: totalBallWeight },
+        sauce: recipe.usePizzaSize ? { perUnit: totalSauce / count, total: totalSauce } : null,
+        cheese: recipe.usePizzaSize ? { perUnit: totalCheese / count, total: totalCheese } : null
+      });
+
+      // Update synced sauce amount
+      if (sauceSynced && recipe.usePizzaSize) {
+        elements.sauceAmount.value = Math.round(totalSauce);
+      }
+      updateSauceTable();
+    }
+
+    function updateDoughTable(count, data) {
+      const recipe = recipes[currentRecipe];
+      const tbody = document.getElementById('doughOutput');
+      
+      let rows = [];
+      
+      // Total Flour
+      rows.push(createRow('Total Flour', data.flour.perUnit, data.flour.total, 'g'));
+      
+      // Flour breakdown
+      if (currentRecipe === 'ceresNY') {
+        rows.push(createRow('└ 00 Flour', data.flour1.perUnit, data.flour1.total, 'g'));
+        rows.push(createRow('└ Whole Wheat', data.flour2.perUnit, data.flour2.total, 'g'));
+        rows.push(createRow('└ Bolted', data.flour3.perUnit, data.flour3.total, 'g'));
+      } else {
+        rows.push(createRow('└ Flour 1 (Bread)', data.flour1.perUnit, data.flour1.total, 'g'));
+        rows.push(createRow('└ Flour 2 (VWG)', data.flour2.perUnit, data.flour2.total, 'g'));
+      }
+      
+      // Other ingredients
+      rows.push(createRow('Water', data.water.perUnit, data.water.total, 'g'));
+      rows.push(createRow('Yeast', data.yeast.perUnit, data.yeast.total, 'g', 2));
+      rows.push(createRow('Salt', data.salt.perUnit, data.salt.total, 'g', 1));
+      rows.push(createRow(recipe.fatLabel || 'EVOO', data.fat.perUnit, data.fat.total, 'g', 1));
+      
+      if (data.sugar) {
+        rows.push(createRow(recipe.sugarLabel || 'Sugar', data.sugar.perUnit, data.sugar.total, 'g', 1));
+      }
+      
+      // Ball weight (highlighted)
+      rows.push(createRow('Ball Weight', data.ballWeight.perUnit, data.ballWeight.total, 'g', 0, true));
+      
+      // Sauce and cheese (for pizzas)
+      if (data.sauce) {
+        rows.push(createRow('Sauce', data.sauce.perUnit, data.sauce.total, 'g'));
+      }
+      if (data.cheese) {
+        rows.push(createRow('Cheese', data.cheese.perUnit, data.cheese.total, 'g'));
+      }
+      
+      tbody.innerHTML = rows.join('');
+    }
+
+    function createRow(label, perUnit, total, unit, decimals = 0, highlight = false) {
+      const highlightClass = highlight ? ' class="highlight"' : '';
+      return `<tr${highlightClass}>
+        <td>${label}</td>
+        <td>${perUnit.toFixed(decimals)} ${unit}</td>
+        <td>${total.toFixed(decimals)} ${unit}</td>
+      </tr>`;
+    }
+
+    function updateSauceTable() {
+      const amount = parseFloat(elements.sauceAmount.value) || 0;
+      const sauce = calculateSauce(amount);
+      const tbody = document.getElementById('sauceOutput');
+      
+      tbody.innerHTML = `
+        <tr><td>Crushed Tomatoes</td><td>${sauce.crushedTomatoes.toFixed(0)} g</td></tr>
+        <tr><td>Tomato Paste</td><td>${sauce.tomatoPaste.toFixed(0)} g</td></tr>
+        <tr><td>EVOO</td><td>${sauce.evoo.toFixed(1)} g</td></tr>
+        <tr><td>Oregano</td><td>${sauce.oregano.toFixed(2)} tsp</td></tr>
+        <tr><td>Sea Salt</td><td>${sauce.seaSalt.toFixed(2)} tsp</td></tr>
+      `;
+    }
+
+    // ==================== RECIPE SWITCHING ====================
+    function switchRecipe(recipeName) {
+      currentRecipe = recipeName;
+      const recipe = recipes[recipeName];
+      
+      // Update active button
+      document.querySelectorAll('.recipe-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.recipe === recipeName);
+      });
+      
+      // Show/hide size vs weight input
+      document.getElementById('sizeGroup').classList.toggle('hidden', !recipe.usePizzaSize);
+      document.getElementById('weightGroup').classList.toggle('hidden', recipe.usePizzaSize);
+      document.getElementById('countLabel').textContent = recipe.usePizzaSize ? 'Number of Pizzas' : 'Number of Bagels';
+      document.getElementById('sizeLabel').textContent = 'Pizza Size (inches)';
+      
+      // Show/hide sugar field
+      document.getElementById('sugarGroup').classList.toggle('hidden', !recipe.hasSugar);
+      if (recipe.hasSugar) {
+        document.getElementById('sugarLabel').textContent = recipe.sugarLabel || 'Sugar';
+      }
+      
+      // Update fat label
+      document.getElementById('fatLabel').textContent = recipe.fatLabel || 'EVOO';
+      
+      // Show/hide flour blend sections
+      document.getElementById('flourBlendNY').classList.toggle('hidden', recipe.flourTypes === 3);
+      document.getElementById('flourBlendCeres').classList.toggle('hidden', recipe.flourTypes !== 3);
+      
+      // Show/hide sliders for bagels
+      document.getElementById('sliderSection').classList.toggle('hidden', !recipe.usePizzaSize);
+      
+      // Show/hide sauce section for bagels
+      document.getElementById('sauceSection').classList.toggle('hidden', !recipe.usePizzaSize);
+      
+      // Load defaults
+      const defaults = recipe.defaults;
+      elements.count.value = defaults.count;
+      if (recipe.usePizzaSize) {
+        elements.size.value = defaults.size;
+      } else {
+        elements.bagelWeight.value = defaults.weight;
+      }
+      elements.hydration.value = defaults.hydration;
+      elements.yeast.value = defaults.yeast;
+      elements.salt.value = defaults.salt;
+      elements.fat.value = defaults.fat;
+      
+      if (recipe.hasSugar) {
+        elements.sugar.value = defaults.sugar;
+      }
+      
+      if (recipe.flourTypes === 3) {
+        elements.flour1Pct.value = defaults.flour1Pct;
+      } else {
+        elements.flour1Protein.value = defaults.flour1Protein;
+        elements.flour2Protein.value = defaults.flour2Protein;
+        elements.targetProtein.value = defaults.targetProtein;
+      }
+      
+      // Reset sliders
+      elements.flourSlider.value = 100;
+      elements.sauceSlider.value = 100;
+      elements.cheeseSlider.value = 100;
+      
+      // Re-sync sauce
+      sauceSynced = true;
+      document.getElementById('syncBadge').classList.remove('hidden');
+      
+      updateUI();
+    }
+
+    // ==================== COLLAPSIBLE SECTIONS ====================
+    function toggleCollapsible(id) {
+      const content = document.getElementById(id + 'Content');
+      const toggle = document.getElementById(id + 'Toggle');
+      content.classList.toggle('open');
+      toggle.classList.toggle('open');
+    }
+
+    // ==================== EVENT LISTENERS ====================
+    function setupEventListeners() {
+      // Recipe buttons
+      document.querySelectorAll('.recipe-btn').forEach(btn => {
+        btn.addEventListener('click', () => switchRecipe(btn.dataset.recipe));
+      });
+      
+      // All input fields
+      const inputs = [
+        'count', 'size', 'bagelWeight', 'hydration', 'yeast', 'salt', 'fat', 'sugar',
+        'flour1Protein', 'flour2Protein', 'targetProtein', 'flour1Pct',
+        'sauceLevel', 'cheeseLevel', 'crustSize', 'flourDensity',
+        'flourSlider', 'sauceSlider', 'cheeseSlider'
+      ];
+      
+      inputs.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+          el.addEventListener('input', updateUI);
+        }
+      });
+      
+      // Sauce amount (break sync when manually edited)
+      elements.sauceAmount.addEventListener('input', () => {
+        sauceSynced = false;
+        document.getElementById('syncBadge').classList.add('hidden');
+        updateSauceTable();
+      });
+      
+      // Re-sync sauce when clicking the badge
+      document.getElementById('syncBadge').addEventListener('click', () => {
+        sauceSynced = true;
+        updateUI();
+      });
+    }
+
+    // ==================== INITIALIZATION ====================
+    document.addEventListener('DOMContentLoaded', () => {
+      setupEventListeners();
+      switchRecipe('newYork');
+    });
+  </script>
+</body>
+</html>
