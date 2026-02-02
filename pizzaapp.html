@@ -879,6 +879,7 @@
           ]
         }],
         directions: [
+          "Make buttermilk if needed (1/2 tbsp vinegar per .5 cup milk)",
           "Cream butter and sugar.",
           "Add eggs and beat until smooth.",
           "Add bananas.",
@@ -1280,6 +1281,17 @@
         btn.classList.toggle('active', btn.dataset.recipe === recipeName);
       });
 
+      // Update dropdown selection
+      const dropdown = document.getElementById('otherRecipes');
+      const dropdownOptions = ['pancakes', 'waffles', 'bananaBread', 'bananaBreadMod', 'bananaPancakes'];
+      if (dropdownOptions.includes(recipeName)) {
+        dropdown.value = recipeName;
+        dropdown.classList.add('active');
+      } else {
+        dropdown.selectedIndex = 0;
+        dropdown.classList.remove('active');
+      }
+
       // Handle simple recipe UI visibility
       if (isSimple) {
         // Hide all dough-specific sections for simple recipes
@@ -1332,6 +1344,8 @@
       document.getElementById('bakersPercentagesTitle')?.classList.remove('hidden');
       document.getElementById('bakersPercentagesGrid')?.classList.remove('hidden');
       document.querySelector('.collapsible-header')?.classList.remove('hidden');
+      // Restore areaInfo - updateUI will toggle based on usePizzaSize
+      document.getElementById('areaInfo').classList.remove('hidden');
 
       // Show/hide size vs weight input
       document.getElementById('sizeGroup').classList.toggle('hidden', !recipe.usePizzaSize);
