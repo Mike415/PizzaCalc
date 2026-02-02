@@ -477,6 +477,22 @@
       font-weight: 600;
       color: var(--text-primary);
     }
+
+    /* Directions List */
+    .directions-list {
+      list-style-position: inside;
+      padding-left: 0;
+    }
+
+    .directions-list li {
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border-color);
+      color: var(--text-primary);
+    }
+
+    .directions-list li:last-child {
+      border-bottom: none;
+    }
   </style>
 </head>
 <body>
@@ -677,6 +693,14 @@
       </table>
     </div>
 
+    <!-- Directions Section -->
+    <div class="card hidden" id="directionsSection">
+      <h2><span class="icon">📝</span> Directions</h2>
+      <ol class="directions-list" id="directionsList">
+        <!-- Populated by JS -->
+      </ol>
+    </div>
+
     <!-- Sauce Recipe -->
     <div class="card" id="sauceSection">
       <h2><span class="icon">🍅</span> Sauce Recipe</h2>
@@ -787,6 +811,12 @@
               { name: 'Eggs', amount: 2, unit: '', isCount: true }
             ]
           }
+        ],
+        directions: [
+          "Mix only a few times.",
+          "Griddle 1/4 cup scoops (smaller pancakes) with lots of salted whipped butter.",
+          "Griddle at 375°F (low on biggest burner) till bubbles are popping (4-5 min).",
+          "Griddle other side until bounces back when touched (1 min)."
         ]
       },
       bananaPancakes: {
@@ -847,7 +877,19 @@
             { name: 'Baking Soda', amount: 9, unit: 'g', altAmount: 1.5, altUnit: 'tsp' },
             { name: 'Buttermilk', amount: 120, unit: 'mL', altAmount: 0.5, altUnit: 'cup' }
           ]
-        }]
+        }],
+        directions: [
+          "Cream butter and sugar.",
+          "Add eggs and beat until smooth.",
+          "Add bananas.",
+          "Combine flour and salt.",
+          "Dissolve baking soda in buttermilk.",
+          "Add dry mixture to creamed mixture alternately with buttermilk.",
+          "Mix lightly.",
+          "Pour batter in greased 9- or 10-inch tube pan.",
+          "Bake at 350° (or 325°) for 1-1.33 hour until 185°F.",
+          "Fill 2/3 full and bake at 350°F for 23 min for cupcakes."
+        ]
       },
       bananaBreadMod: {
         name: "Banana Bread (Modified)",
@@ -869,7 +911,19 @@
             { name: 'Baking Soda', amount: 9, unit: 'g', altAmount: 1.5, altUnit: 'tsp' },
             { name: 'Buttermilk', amount: 120, unit: 'mL', altAmount: 0.5, altUnit: 'cup' }
           ]
-        }]
+        }],
+        directions: [
+          "Cream butter and sugar.",
+          "Add eggs and beat until smooth.",
+          "Add bananas.",
+          "Combine flour and salt.",
+          "Dissolve baking soda in buttermilk.",
+          "Add dry mixture to creamed mixture alternately with buttermilk.",
+          "Mix lightly.",
+          "Pour batter in greased 9- or 10-inch tube pan.",
+          "Bake at 350° (or 325°) for 1-1.33 hour until 185°F.",
+          "Fill 2/3 full and bake at 350°F for 23 min for cupcakes."
+        ]
       }
     };
 
@@ -1209,9 +1263,16 @@
     }
 
     // ==================== RECIPE SWITCHING ====================
-    function switchRecipe(recipeName) {
+    function switchRecipe(recipeName, updateUrl = true) {
       currentRecipe = recipeName;
       const recipe = recipes[recipeName];
+
+      // Update URL with recipe parameter
+      if (updateUrl) {
+        const url = new URL(window.location);
+        url.searchParams.set('recipe', recipeName);
+        history.replaceState(null, '', url);
+      }
       const isSimple = recipe.recipeType === 'simple';
 
       // Update active button
@@ -1248,6 +1309,16 @@
 
         // Load simple recipe defaults
         elements.count.value = recipe.defaults.count;
+
+        // Handle directions section
+        const directionsSection = document.getElementById('directionsSection');
+        const directionsList = document.getElementById('directionsList');
+        if (recipe.directions && recipe.directions.length > 0) {
+          directionsList.innerHTML = recipe.directions.map(step => `<li>${step}</li>`).join('');
+          directionsSection.classList.remove('hidden');
+        } else {
+          directionsSection.classList.add('hidden');
+        }
 
         updateUI();
         return;
@@ -1321,6 +1392,16 @@
       sauceSynced = true;
       document.getElementById('syncBadge').classList.remove('hidden');
 
+      // Hide directions section for dough recipes (unless they have directions)
+      const directionsSection = document.getElementById('directionsSection');
+      const directionsList = document.getElementById('directionsList');
+      if (recipe.directions && recipe.directions.length > 0) {
+        directionsList.innerHTML = recipe.directions.map(step => `<li>${step}</li>`).join('');
+        directionsSection.classList.remove('hidden');
+      } else {
+        directionsSection.classList.add('hidden');
+      }
+
       updateUI();
     }
 
@@ -1385,7 +1466,17 @@
     // ==================== INITIALIZATION ====================
     document.addEventListener('DOMContentLoaded', () => {
       setupEventListeners();
-      switchRecipe('newYork');
+
+      // Check URL for recipe parameter
+      const urlParams = new URLSearchParams(window.location.search);
+      const recipeFromUrl = urlParams.get('recipe');
+
+      // Use recipe from URL if valid, otherwise default to newYork
+      if (recipeFromUrl && recipes[recipeFromUrl]) {
+        switchRecipe(recipeFromUrl, false);
+      } else {
+        switchRecipe('newYork');
+      }
     });
   </script>
 </body>
