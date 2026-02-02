@@ -324,6 +324,49 @@
       display: none !important;
     }
 
+    /* Recipe Dropdown */
+    .recipe-dropdown {
+      position: relative;
+    }
+
+    .recipe-select {
+      padding: 12px 24px;
+      border: 2px solid var(--border-color);
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: 600;
+      appearance: none;
+      min-width: 180px;
+    }
+
+    .recipe-select:hover,
+    .recipe-select:focus {
+      border-color: var(--primary-color);
+      outline: none;
+    }
+
+    .recipe-select.active {
+      background: var(--primary-color);
+      color: white;
+      border-color: var(--primary-color);
+    }
+
+    /* Group headers and display hints for simple recipes */
+    .output-table tr.group-header td {
+      background: var(--output-bg);
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      padding-top: 16px;
+    }
+
+    .display-hint {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      font-weight: normal;
+    }
+
     /* Responsive */
     @media (max-width: 768px) {
       .header h1 {
@@ -449,12 +492,24 @@
       <button class="recipe-btn active" data-recipe="newYork">New York</button>
       <button class="recipe-btn" data-recipe="ceresNY">Ceres NY</button>
       <button class="recipe-btn" data-recipe="bagels">Bagels</button>
+
+      <!-- Dropdown for other baked goods -->
+      <div class="recipe-dropdown">
+        <select id="otherRecipes" class="recipe-select">
+          <option value="" disabled selected>Other Baked Goods ▼</option>
+          <option value="pancakes">🥞 Pancakes</option>
+          <option value="waffles">🧇 Waffles</option>
+          <option value="bananaBread">🍌 Kim's Banana Bread</option>
+          <option value="bananaBreadMod">🍌 Kim's Banana Bread (Modded)</option>
+          <option value="bananaPancakes">🍌🥞 Banana Pancakes</option>
+        </select>
+      </div>
     </div>
 
     <!-- Dough Calculator -->
     <div class="card">
       <h2><span class="icon">🧮</span> Dough Calculator</h2>
-      
+
       <!-- Common Inputs -->
       <div class="input-grid">
         <div class="input-group">
@@ -474,18 +529,18 @@
       <div class="section-divider"></div>
 
       <!-- Baker's Percentages -->
-      <h3 style="font-size: 0.95rem; color: var(--text-secondary); margin-bottom: 12px;">
-        Baker's Percentages <span class="tooltip" data-tip="All percentages relative to flour (100%)"></span>
-      </h3>
-      <div class="input-grid">
+      <h3 id="bakersPercentagesTitle" style="font-size: 0.95rem; color: var(--text-secondary); margin-bottom: 12px;">
+          Baker's Percentages <span class="tooltip" data-tip="All percentages relative to flour (100%)"></span>
+        </h3>
+        <div id="bakersPercentagesGrid" class="input-grid">
         <div class="input-group">
           <label>Flour</label>
           <input type="text" value="100%" disabled>
         </div>
-        <div class="input-group percentage-input">
-          <label>Hydration <span class="tooltip" data-tip="Water as % of flour"></span></label>
-          <input type="number" id="hydration" value="62" min="40" max="90" step="0.5">
-        </div>
+        <div class="input-group percentage-input" id="hydrationGroup">
+            <label>Hydration <span class="tooltip" data-tip="Water as % of flour"></span></label>
+            <input type="number" id="hydration" value="62" min="40" max="90" step="0.5">
+          </div>
         <div class="input-group percentage-input">
           <label>Yeast <span class="tooltip" data-tip="Instant dry yeast"></span></label>
           <input type="number" id="yeast" value="0.75" min="0" max="5" step="0.05">
@@ -703,6 +758,118 @@
         sugarLabel: "Malt",
         flourTypes: 2,
         fatLabel: "Fat"
+      },
+      pancakes: {
+        name: "Pancakes",
+        recipeType: 'simple',
+        icon: '🥞',
+        baseCount: 10,
+        countLabel: 'Number of Pancakes',
+        defaults: { count: 10 },
+        ingredientGroups: [
+          {
+            name: 'Dry Ingredients',
+            items: [
+              { name: 'AP Flour', amount: 240, unit: 'g' },
+              { name: 'Sugar', amount: 25, unit: 'g' },
+              { name: 'Salt', amount: 5, unit: 'g', altAmount: 0.75, altUnit: 'tsp' },
+              { name: 'Baking Powder', amount: 6, unit: 'g', altAmount: 1.5, altUnit: 'tsp' },
+              { name: 'Baking Soda', amount: 3, unit: 'g', altAmount: 0.75, altUnit: 'tsp' }
+            ]
+          },
+          {
+            name: 'Wet Ingredients',
+            items: [
+              { name: 'Milk', amount: 300, unit: 'g' },
+              { name: 'Vegetable Oil', amount: 28, unit: 'g' },
+              { name: 'Vanilla Extract', amount: 6, unit: 'g', altAmount: 1.5, altUnit: 'tsp' },
+              { name: 'Apple Cider Vinegar', amount: 30, unit: 'g' },
+              { name: 'Eggs', amount: 2, unit: '', isCount: true }
+            ]
+          }
+        ]
+      },
+      bananaPancakes: {
+        name: "Banana Pancakes",
+        recipeType: 'simple',
+        icon: '🍌',
+        baseCount: 1,
+        countLabel: 'Number of Batches',
+        defaults: { count: 1 },
+        ingredientGroups: [{
+          name: 'Ingredients',
+          items: [
+            { name: 'Bananas', amount: 250, unit: 'g', altAmount: 3, altUnit: 'bananas' },
+            { name: 'Eggs', amount: 100, unit: 'g', altAmount: 2, altUnit: 'eggs' },
+            { name: 'Baking Powder', amount: 3, unit: 'g' },
+            { name: 'Flour', amount: 75, unit: 'g' },
+            { name: 'Cinnamon', amount: 2, unit: 'g' }
+          ]
+        }]
+      },
+      waffles: {
+        name: "Waffles",
+        recipeType: 'simple',
+        icon: '🧇',
+        baseCount: 12,
+        countLabel: 'Number of Waffles',
+        defaults: { count: 12 },
+        ingredientGroups: [{
+          name: 'Ingredients',
+          items: [
+            { name: 'AP Flour', amount: 216, unit: 'g' },
+            { name: 'Baking Powder', amount: 10, unit: 'g' },
+            { name: 'Sugar', amount: 28, unit: 'g' },
+            { name: 'Salt', amount: 4, unit: 'g' },
+            { name: 'Eggs', amount: 2, unit: '', isCount: true },
+            { name: 'Melted Butter/Oil', amount: 90, unit: 'g' },
+            { name: 'Milk', amount: 385, unit: 'mL' },
+            { name: 'Vanilla Extract', amount: 8, unit: 'g' }
+          ]
+        }]
+      },
+      bananaBread: {
+        name: "Kim's Banana Bread",
+        recipeType: 'simple',
+        icon: '🍌',
+        baseCount: 1,
+        countLabel: 'Number of Loaves',
+        defaults: { count: 1 },
+        ingredientGroups: [{
+          name: 'Ingredients',
+          items: [
+            { name: 'Butter/Margarine', amount: 113, unit: 'g', altAmount: 0.5, altUnit: 'cup' },
+            { name: 'Sugar', amount: 400, unit: 'g', altAmount: 2, altUnit: 'cups' },
+            { name: 'Eggs', amount: 2, unit: '', isCount: true },
+            { name: 'Mashed Bananas', amount: 450, unit: 'g', altAmount: 4, altUnit: 'bananas' },
+            { name: 'AP Flour', amount: 360, unit: 'g', altAmount: 3, altUnit: 'cups' },
+            { name: 'Salt', amount: 3, unit: 'g', altAmount: 0.5, altUnit: 'tsp' },
+            { name: 'Baking Soda', amount: 9, unit: 'g', altAmount: 1.5, altUnit: 'tsp' },
+            { name: 'Buttermilk', amount: 120, unit: 'mL', altAmount: 0.5, altUnit: 'cup' }
+          ]
+        }]
+      },
+      bananaBreadMod: {
+        name: "Banana Bread (Modified)",
+        recipeType: 'simple',
+        icon: '🍌',
+        baseCount: 1,
+        countLabel: 'Number of Loaves',
+        defaults: { count: 1 },
+        ingredientGroups: [{
+          name: 'Ingredients',
+          items: [
+            { name: 'Butter/Margarine', amount: 113, unit: 'g', altAmount: 0.5, altUnit: 'cup' },
+            { name: 'Oil', amount: 56, unit: 'g', altAmount: 0.25, altUnit: 'cup' },
+            { name: 'Brown Sugar', amount: 300, unit: 'g', altAmount: 1.5, altUnit: 'cups' },
+            { name: 'Eggs + Yolk', amount: 2.5, unit: '', isCount: true, display: '(2 + yolk)' },
+            { name: 'Mashed Bananas', amount: 560, unit: 'g', altAmount: 5, altUnit: 'bananas' },
+            { name: 'AP Flour', amount: 330, unit: 'g', altAmount: 2.75, altUnit: 'cups' },
+            { name: 'Salt', amount: 3, unit: 'g', altAmount: 0.5, altUnit: 'tsp' },
+            { name: 'Baking Soda', amount: 9, unit: 'g', altAmount: 1.5, altUnit: 'tsp' },
+            { name: 'Buttermilk', amount: 120, unit: 'mL', altAmount: 0.5, altUnit: 'cup' }
+          ]
+        }]
       }
     };
 
@@ -767,7 +934,7 @@
 
     function calculateFlourFromWeight(targetWeight, percentages) {
       // Total dough weight = flour * (1 + hydration + yeast + salt + fat + sugar)
-      const totalPct = 1 + percentages.hydration + percentages.yeast + 
+      const totalPct = 1 + percentages.hydration + percentages.yeast +
                        percentages.salt + percentages.fat + (percentages.sugar || 0);
       return targetWeight / totalPct;
     }
@@ -820,10 +987,56 @@
     }
 
     // ==================== UI UPDATE FUNCTIONS ====================
+    function updateSimpleRecipeUI() {
+      const recipe = recipes[currentRecipe];
+      const count = parseFloat(elements.count.value) || 1;
+      const scale = count / recipe.baseCount;
+
+      let rows = [];
+
+      recipe.ingredientGroups.forEach(group => {
+        rows.push(`<tr class="group-header"><td colspan="3"><strong>${group.name}</strong></td></tr>`);
+
+        group.items.forEach(ing => {
+          const scaledAmount = ing.amount * scale;
+          const perUnit = ing.amount / recipe.baseCount;
+
+          let displayUnit = ing.unit;
+          let perUnitDisplay = perUnit.toFixed(1);
+          let totalDisplay = scaledAmount.toFixed(1);
+
+          if (ing.isCount) {
+            perUnitDisplay = perUnit.toFixed(2);
+            totalDisplay = scaledAmount.toFixed(1);
+          }
+
+          let extra = '';
+          if (ing.altAmount !== undefined && ing.altUnit) {
+            const scaledAlt = ing.altAmount * scale;
+            extra = ` <span class="display-hint">(${scaledAlt.toFixed(2)} ${ing.altUnit})</span>`;
+          } else if (ing.display) {
+            extra = ` <span class="display-hint">${ing.display}</span>`;
+          }
+          rows.push(`<tr>
+            <td>${ing.name}${extra}</td>
+            <td>${perUnitDisplay} ${displayUnit}</td>
+            <td>${totalDisplay} ${displayUnit}</td>
+          </tr>`);
+        });
+      });
+
+      document.getElementById('doughOutput').innerHTML = rows.join('');
+    }
+
     function updateUI() {
       const recipe = recipes[currentRecipe];
+
+      if (recipe.recipeType === 'simple') {
+        updateSimpleRecipeUI();
+        return;
+      }
       const count = parseInt(elements.count.value) || 1;
-      
+
       // Get percentages (convert from display % to decimal)
       const percentages = {
         hydration: parseFloat(elements.hydration.value) / 100,
@@ -838,7 +1051,7 @@
       const cheeseLevel = parseFloat(elements.cheeseLevel.value);
       const crustSize = parseFloat(elements.crustSize.value);
       const flourDensity = parseFloat(elements.flourDensity.value);
-      
+
       // Get slider values
       const flourSliderPct = parseInt(elements.flourSlider.value);
       const sauceSliderPct = parseInt(elements.sauceSlider.value);
@@ -869,7 +1082,7 @@
         const targetWeight = parseFloat(elements.bagelWeight.value);
         perUnitFlour = calculateFlourFromWeight(targetWeight, percentages);
         totalFlour = perUnitFlour * count;
-        
+
         // For bagels, set dummy area for sauce/cheese calculation
         doughArea = 0;
         coveredArea = 0;
@@ -881,7 +1094,7 @@
       const perUnitIngredients = calculateIngredients(perUnitFlour, percentages);
 
       // Calculate ball weight
-      const perUnitBallWeight = perUnitFlour + perUnitIngredients.water + perUnitIngredients.yeast + 
+      const perUnitBallWeight = perUnitFlour + perUnitIngredients.water + perUnitIngredients.yeast +
                                 perUnitIngredients.salt + perUnitIngredients.fat + perUnitIngredients.sugar;
       const totalBallWeight = perUnitBallWeight * count;
 
@@ -932,12 +1145,12 @@
     function updateDoughTable(count, data) {
       const recipe = recipes[currentRecipe];
       const tbody = document.getElementById('doughOutput');
-      
+
       let rows = [];
-      
+
       // Total Flour
       rows.push(createRow('Total Flour', data.flour.perUnit, data.flour.total, 'g'));
-      
+
       // Flour breakdown
       if (currentRecipe === 'ceresNY') {
         rows.push(createRow('└ 00 Flour', data.flour1.perUnit, data.flour1.total, 'g'));
@@ -947,20 +1160,20 @@
         rows.push(createRow('└ Flour 1 (Bread)', data.flour1.perUnit, data.flour1.total, 'g'));
         rows.push(createRow('└ Flour 2 (VWG)', data.flour2.perUnit, data.flour2.total, 'g'));
       }
-      
+
       // Other ingredients
       rows.push(createRow('Water', data.water.perUnit, data.water.total, 'g'));
       rows.push(createRow('Yeast', data.yeast.perUnit, data.yeast.total, 'g', 2));
       rows.push(createRow('Salt', data.salt.perUnit, data.salt.total, 'g', 1));
       rows.push(createRow(recipe.fatLabel || 'EVOO', data.fat.perUnit, data.fat.total, 'g', 1));
-      
+
       if (data.sugar) {
         rows.push(createRow(recipe.sugarLabel || 'Sugar', data.sugar.perUnit, data.sugar.total, 'g', 1));
       }
-      
+
       // Ball weight (highlighted)
       rows.push(createRow('Ball Weight', data.ballWeight.perUnit, data.ballWeight.total, 'g', 0, true));
-      
+
       // Sauce and cheese (for pizzas)
       if (data.sauce) {
         rows.push(createRow('Sauce', data.sauce.perUnit, data.sauce.total, 'g'));
@@ -968,7 +1181,7 @@
       if (data.cheese) {
         rows.push(createRow('Cheese', data.cheese.perUnit, data.cheese.total, 'g'));
       }
-      
+
       tbody.innerHTML = rows.join('');
     }
 
@@ -985,7 +1198,7 @@
       const amount = parseFloat(elements.sauceAmount.value) || 0;
       const sauce = calculateSauce(amount);
       const tbody = document.getElementById('sauceOutput');
-      
+
       tbody.innerHTML = `
         <tr><td>Crushed Tomatoes</td><td>${sauce.crushedTomatoes.toFixed(0)} g</td></tr>
         <tr><td>Tomato Paste</td><td>${sauce.tomatoPaste.toFixed(0)} g</td></tr>
@@ -999,37 +1212,81 @@
     function switchRecipe(recipeName) {
       currentRecipe = recipeName;
       const recipe = recipes[recipeName];
-      
+      const isSimple = recipe.recipeType === 'simple';
+
       // Update active button
       document.querySelectorAll('.recipe-btn').forEach(btn => {
         btn.classList.toggle('active', btn.dataset.recipe === recipeName);
       });
-      
+
+      // Handle simple recipe UI visibility
+      if (isSimple) {
+        // Hide all dough-specific sections for simple recipes
+        document.getElementById('sizeGroup').classList.add('hidden');
+        document.getElementById('weightGroup').classList.add('hidden');
+        document.getElementById('sugarGroup').classList.add('hidden');
+        document.getElementById('sliderSection').classList.add('hidden');
+        document.getElementById('flourBlendNY').classList.add('hidden');
+        document.getElementById('flourBlendCeres').classList.add('hidden');
+        document.getElementById('flourBlendDivider').classList.add('hidden');
+        document.getElementById('flourBlendTitle').classList.add('hidden');
+        document.getElementById('areaInfo').classList.add('hidden');
+        document.getElementById('sauceSection').classList.add('hidden');
+        document.getElementById('hydrationGroup')?.classList.add('hidden');
+
+        // Hide baker's percentages section
+        document.getElementById('bakersPercentagesTitle')?.classList.add('hidden');
+        document.getElementById('bakersPercentagesGrid')?.classList.add('hidden');
+        document.querySelectorAll('.section-divider').forEach(el => el.classList.add('hidden'));
+
+        // Hide reference values collapsible
+        document.querySelector('.collapsible-header')?.classList.add('hidden');
+        document.getElementById('refValuesContent')?.classList.add('hidden');
+
+        // Update count label for simple recipes
+        document.getElementById('countLabel').textContent = recipe.countLabel || 'Count';
+
+        // Load simple recipe defaults
+        elements.count.value = recipe.defaults.count;
+
+        updateUI();
+        return;
+      }
+
+      // Restore visibility for dough recipes
+      document.querySelectorAll('.section-divider').forEach(el => el.classList.remove('hidden'));
+      document.getElementById('hydrationGroup')?.classList.remove('hidden');
+      document.getElementById('flourBlendDivider').classList.remove('hidden');
+      document.getElementById('flourBlendTitle').classList.remove('hidden');
+      document.getElementById('bakersPercentagesTitle')?.classList.remove('hidden');
+      document.getElementById('bakersPercentagesGrid')?.classList.remove('hidden');
+      document.querySelector('.collapsible-header')?.classList.remove('hidden');
+
       // Show/hide size vs weight input
       document.getElementById('sizeGroup').classList.toggle('hidden', !recipe.usePizzaSize);
       document.getElementById('weightGroup').classList.toggle('hidden', recipe.usePizzaSize);
       document.getElementById('countLabel').textContent = recipe.usePizzaSize ? 'Number of Pizzas' : 'Number of Bagels';
       document.getElementById('sizeLabel').textContent = 'Pizza Size (inches)';
-      
+
       // Show/hide sugar field
       document.getElementById('sugarGroup').classList.toggle('hidden', !recipe.hasSugar);
       if (recipe.hasSugar) {
         document.getElementById('sugarLabel').textContent = recipe.sugarLabel || 'Sugar';
       }
-      
+
       // Update fat label
       document.getElementById('fatLabel').textContent = recipe.fatLabel || 'EVOO';
-      
+
       // Show/hide flour blend sections
       document.getElementById('flourBlendNY').classList.toggle('hidden', recipe.flourTypes === 3);
       document.getElementById('flourBlendCeres').classList.toggle('hidden', recipe.flourTypes !== 3);
-      
+
       // Show/hide sliders for bagels
       document.getElementById('sliderSection').classList.toggle('hidden', !recipe.usePizzaSize);
-      
+
       // Show/hide sauce section for bagels
       document.getElementById('sauceSection').classList.toggle('hidden', !recipe.usePizzaSize);
-      
+
       // Load defaults
       const defaults = recipe.defaults;
       elements.count.value = defaults.count;
@@ -1042,11 +1299,11 @@
       elements.yeast.value = defaults.yeast;
       elements.salt.value = defaults.salt;
       elements.fat.value = defaults.fat;
-      
+
       if (recipe.hasSugar) {
         elements.sugar.value = defaults.sugar;
       }
-      
+
       if (recipe.flourTypes === 3) {
         elements.flour1Pct.value = defaults.flour1Pct;
       } else {
@@ -1054,16 +1311,16 @@
         elements.flour2Protein.value = defaults.flour2Protein;
         elements.targetProtein.value = defaults.targetProtein;
       }
-      
+
       // Reset sliders
       elements.flourSlider.value = 100;
       elements.sauceSlider.value = 100;
       elements.cheeseSlider.value = 100;
-      
+
       // Re-sync sauce
       sauceSynced = true;
       document.getElementById('syncBadge').classList.remove('hidden');
-      
+
       updateUI();
     }
 
@@ -1079,9 +1336,23 @@
     function setupEventListeners() {
       // Recipe buttons
       document.querySelectorAll('.recipe-btn').forEach(btn => {
-        btn.addEventListener('click', () => switchRecipe(btn.dataset.recipe));
+        btn.addEventListener('click', () => {
+          const dropdown = document.getElementById('otherRecipes');
+          dropdown.selectedIndex = 0;
+          dropdown.classList.remove('active');
+          switchRecipe(btn.dataset.recipe);
+        });
       });
-      
+
+      // Dropdown selection for other baked goods
+      document.getElementById('otherRecipes').addEventListener('change', (e) => {
+        if (e.target.value) {
+          document.querySelectorAll('.recipe-btn').forEach(btn => btn.classList.remove('active'));
+          e.target.classList.add('active');
+          switchRecipe(e.target.value);
+        }
+      });
+
       // All input fields
       const inputs = [
         'count', 'size', 'bagelWeight', 'hydration', 'yeast', 'salt', 'fat', 'sugar',
@@ -1089,21 +1360,21 @@
         'sauceLevel', 'cheeseLevel', 'crustSize', 'flourDensity',
         'flourSlider', 'sauceSlider', 'cheeseSlider'
       ];
-      
+
       inputs.forEach(id => {
         const el = document.getElementById(id);
         if (el) {
           el.addEventListener('input', updateUI);
         }
       });
-      
+
       // Sauce amount (break sync when manually edited)
       elements.sauceAmount.addEventListener('input', () => {
         sauceSynced = false;
         document.getElementById('syncBadge').classList.add('hidden');
         updateSauceTable();
       });
-      
+
       // Re-sync sauce when clicking the badge
       document.getElementById('syncBadge').addEventListener('click', () => {
         sauceSynced = true;
